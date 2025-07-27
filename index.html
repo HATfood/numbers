@@ -364,7 +364,7 @@
             }, {});
 
             // --- EDIT: Updated custom department sorting order ---
-            const customDeptOrder = ['مسئول دفتر', ' مدیریت', 'معاونت مالی هلدینگ کشت و صنعت'];
+            const customDeptOrder = ['مسئول دفتر', 'مدیریت', 'معاونت مالی هلدینگ کشت و صنعت'];
             const allDepts = Object.keys(groupedByDept);
             
             const sortedDepts = customDeptOrder.filter(d => allDepts.includes(d));
@@ -384,7 +384,7 @@
                 const grid = document.createElement('div');
                 grid.className = 'directory-grid';
 
-                const sortedEmployees = groupedByDept[dept].sort((a, b) => a.name.localeCompare(b.name, 'fa'));
+                const sortedEmployees = groupedByDept[dept].sort((a, b) => a.lastName.localeCompare(b.lastName, 'fa'));
 
                 sortedEmployees.forEach(employee => {
                     const card = document.createElement('div');
