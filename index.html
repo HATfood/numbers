@@ -391,7 +391,10 @@
                     card.className = 'employee-card';
                     
                     // --- EDIT: Add logic for the manager tag ---
-                    const managerTagHtml = /^مدیر\b/.test(employee.position)
+                    const managerTagHtml = (
+                        employee.position.includes('مدیر') && 
+                        !employee.position.includes('مدیریت')
+                    ) 
                         ? `<span class="manager-tag">مدیر</span>` 
                         : '';
 
