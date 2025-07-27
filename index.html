@@ -364,7 +364,7 @@
             }, {});
 
             // --- EDIT: Updated custom department sorting order ---
-            const customDeptOrder = ['مسئول دفتر', 'مدیریت', 'معاونت مالی هلدینگ کشت و صنعت'];
+            const customDeptOrder = ['مسئول دفتر', ' مدیریت', 'معاونت مالی هلدینگ کشت و صنعت'];
             const allDepts = Object.keys(groupedByDept);
             
             const sortedDepts = customDeptOrder.filter(d => allDepts.includes(d));
@@ -397,7 +397,6 @@
 
                     card.innerHTML = `
                         <div class="card-header">
-                            <i class="fas fa-user-circle"></i>
                             <h3>${employee.name} ${managerTagHtml}</h3>
                             <div class="position">${employee.position}</div>
                         </div>
