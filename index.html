@@ -21,7 +21,6 @@
             --success-color: #28a745;
         }
 
-        /* --- NEW: Universal Box Sizing --- */
         *, *::before, *::after {
             box-sizing: border-box;
         }
@@ -112,7 +111,7 @@
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s ease;
-            font-family: 'Vazirmatn', sans-serif; /* --- EDIT: Explicitly set font --- */
+            font-family: 'Vazirmatn', sans-serif;
         }
         .filter-btn:hover { background-color: #f1f3f5; }
         .filter-btn.active {
@@ -171,12 +170,30 @@
         .card-header .fa-user-circle {
             font-size: 4rem; color: var(--primary-color); margin-bottom: 10px;
         }
-        .card-header h3 { margin: 0; font-size: 1.4rem; color: var(--text-color); }
+        .card-header h3 { 
+            margin: 0; 
+            font-size: 1.4rem; 
+            color: var(--text-color);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
         .card-header .position { 
             font-size: 1rem; 
             color: var(--light-text);
             font-weight: 500;
             margin-top: 5px;
+        }
+
+        /* --- NEW: Manager Tag Style --- */
+        .manager-tag {
+            background-color: var(--secondary-color);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+            display: inline-block;
         }
 
         .card-body { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
@@ -201,7 +218,7 @@
             font-size: 1rem;
             transition: color 0.3s;
             flex-grow: 1;
-            word-break: break-all; /* --- EDIT: Prevent email/text overflow --- */
+            word-break: break-all;
         }
         .info-item a:hover { color: var(--secondary-color); }
         .copy-btn {
@@ -273,19 +290,21 @@
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
 
+        // --- EDIT: Updated column configuration ---
         const config = {
             excelFileName: 'numbers.xlsx',
             columns: {
                 name: 'نام',
+                lastName: 'خانوادگی',
                 department: 'واحد',
-
+                position: 'سمت',
                 phone: 'داخلی',
                 email: 'ایمیل'
             },
             defaults: {
                 name: 'بدون نام',
-                department: 'بدون دپارتمان',
-
+                department: 'بدون واحد',
+                position: 'مشخص نشده',
                 phone: 'N/A',
                 email: 'N/A'
             }
@@ -302,7 +321,6 @@
         const statusMessage = document.getElementById('status-message');
         const controlsPanel = document.getElementById('controls-panel');
         
-        // --- NEW: Function to convert numbers to Persian digits ---
         const toPersianDigits = (num) => {
             const persian = { '0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹' };
             return String(num).replace(/[0123456789]/g, (digit) => persian[digit]);
@@ -345,14 +363,12 @@
                 return acc;
             }, {});
 
-            // --- NEW: Custom department sorting logic ---
-            const customDeptOrder = ['مسئول دفتر', 'مدیریت', 'معاونت مالی هلدینگ کشت و صنعت', 'منابع انسانی'];
+            // --- EDIT: Updated custom department sorting order ---
+            const customDeptOrder = ['مسئول دفتر', 'مدیریت', 'معاونت مالی هلدینگ کشت و صنعت'];
             const allDepts = Object.keys(groupedByDept);
             
-            // Start with the custom-ordered departments that exist in the data
             const sortedDepts = customDeptOrder.filter(d => allDepts.includes(d));
 
-            // Add the remaining departments, sorted alphabetically
             allDepts
                 .filter(d => !customDeptOrder.includes(d))
                 .sort((a, b) => a.localeCompare(b, 'fa'))
@@ -373,11 +389,16 @@
                 sortedEmployees.forEach(employee => {
                     const card = document.createElement('div');
                     card.className = 'employee-card';
-                    // --- EDIT: Use toPersianDigits for phone number display ---
+                    
+                    // --- EDIT: Add logic for the manager tag ---
+                    const managerTagHtml = employee.position.includes('مدیر') 
+                        ? `<span class="manager-tag">مدیر</span>` 
+                        : '';
+
                     card.innerHTML = `
                         <div class="card-header">
                             <i class="fas fa-user-circle"></i>
-                            <h3>${employee.name}</h3>
+                            <h3>${employee.name} ${managerTagHtml}</h3>
                             <div class="position">${employee.position}</div>
                         </div>
                         <div class="card-body">
@@ -428,7 +449,6 @@
             }
 
             if (searchTerm) {
-                // The search continues to work on the original English numbers
                 filteredEmployees = filteredEmployees.filter(e => 
                     e.name.toLowerCase().includes(searchTerm) || 
                     e.department.toLowerCase().includes(searchTerm) ||
@@ -454,13 +474,18 @@
             const worksheet = workbook.Sheets[firstSheetName];
             const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-            employees = jsonData.map(row => ({
-                name: row[config.columns.name] || config.defaults.name,
-                department: row[config.columns.department] || config.defaults.department,
-                position: row[config.columns.position] || config.defaults.position,
-                phone: row[config.columns.phone] || config.defaults.phone,
-                email: row[config.columns.email] || config.defaults.email
-            }));
+            // --- EDIT: Combine 'نام' and 'خانوادگی' and use new column names ---
+            employees = jsonData.map(row => {
+                const firstName = row[config.columns.name] || '';
+                const lastName = row[config.columns.lastName] || '';
+                return {
+                    name: `${firstName} ${lastName}`.trim() || config.defaults.name,
+                    department: row[config.columns.department] || config.defaults.department,
+                    position: row[config.columns.position] || config.defaults.position,
+                    phone: row[config.columns.phone] || config.defaults.phone,
+                    email: row[config.columns.email] || config.defaults.email
+                }
+            });
 
             statusContainer.style.display = 'none';
             controlsPanel.style.display = 'flex';
