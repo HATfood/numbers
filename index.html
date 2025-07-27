@@ -246,6 +246,16 @@
         #status-container {
             text-align: center; padding: 60px 20px;
         }
+
+        .site-footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border-color);
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+        
         .loader {
             border: 5px solid #f3f3f3;
             border-top: 5px solid var(--secondary-color);
@@ -257,14 +267,14 @@
         }
         #status-message { font-size: 1.2rem; color: var(--light-text); }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
+        
     </style>
 </head>
 <body>
 
     <div class="container">
         <header class="header">
-            <h1><i class="fas fa-address-book"></i> دفترچه تلفن شرکت</h1>
+            <h1><i class="fas fa-address-book"></i> دفترچه تلفن شرکت هستی آرین تامین</h1>
             <p>لیست اطلاعات تماس همکاران</p>
         </header>
         
@@ -285,6 +295,18 @@
         <div id="directory-container">
             <!-- Content will be generated here -->
         </div>
+        <div id="directory-container">
+            <!-- Content will be generated here -->
+        </div>
+
+        <!-- === ADD THIS FOOTER CODE BELOW === -->
+        <footer class="site-footer">
+            تهیه شده توسط واحد مارکتینگ | ۱۴۰۴
+        </footer>
+        <!-- === END OF FOOTER CODE === -->
+
+    </div> <!-- This is the closing tag for class="container" -->
+        
     </div>
 
     <script>
@@ -391,12 +413,9 @@
                     card.className = 'employee-card';
                     
                     // --- EDIT: Add logic for the manager tag ---
-                    const managerTagHtml = (
-                        employee.position.includes('مدیر') && 
-                        !employee.position.includes('مدیریت')
-                    ) 
-                        ? `<span class="manager-tag">مدیر</span>` 
-                        : '';
+                const managerTagHtml = /\bمدیر\b/.test(employee.position)
+                    ? `<span class="manager-tag">مدیر</span>`
+                    : '';
 
                     card.innerHTML = `
                         <div class="card-header">
