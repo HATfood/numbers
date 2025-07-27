@@ -384,7 +384,7 @@
                 const grid = document.createElement('div');
                 grid.className = 'directory-grid';
 
-                const sortedEmployees = groupedByDept[dept].sort((a, b) => a.name.localeCompare(b.name, 'fa'));
+                const sortedEmployees = groupedByDept[dept].sort((a, b) => a.lastName.localeCompare(b.lastName, 'fa'));
 
                 sortedEmployees.forEach(employee => {
                     const card = document.createElement('div');
@@ -479,6 +479,7 @@
                 const lastName = row[config.columns.lastName] || '';
                 return {
                     name: `${firstName} ${lastName}`.trim() || config.defaults.name,
+                    lastName: lastName, // <<< ADD THIS LINE
                     department: row[config.columns.department] || config.defaults.department,
                     position: row[config.columns.position] || config.defaults.position,
                     phone: row[config.columns.phone] || config.defaults.phone,
