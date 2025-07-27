@@ -18,6 +18,7 @@
             --light-text: #6c757d;
             --divider-bg: #e9ecef;
             --border-color: #dee2e6;
+            --success-color: #28a745;
         }
 
         body {
@@ -73,12 +74,22 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(13, 59, 102, 0.1);
         }
-        .search-container i {
+        .search-container .fa-search {
             position: absolute;
             right: 18px;
             top: 50%;
             transform: translateY(-50%);
             color: #adb5bd;
+        }
+        #clear-search-btn {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+            cursor: pointer;
+            display: none; /* Hidden by default */
+            font-size: 1.2rem;
         }
 
         #filter-buttons {
@@ -105,7 +116,6 @@
             font-weight: 700;
         }
         
-        /* New Department Divider Style */
         .department-divider {
             display: flex;
             align-items: center;
@@ -127,10 +137,9 @@
             border-radius: 2px;
         }
         
-        /* Directory Grid Styles */
         .directory-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 25px;
         }
 
@@ -157,6 +166,12 @@
             font-size: 4rem; color: var(--primary-color); margin-bottom: 10px;
         }
         .card-header h3 { margin: 0; font-size: 1.4rem; color: var(--text-color); }
+        .card-header .position { 
+            font-size: 1rem; 
+            color: var(--light-text);
+            font-weight: 500;
+            margin-top: 5px;
+        }
 
         .card-body { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
         .info-item {
@@ -165,6 +180,7 @@
             gap: 12px;
             direction: ltr; 
             text-align: left;
+            position: relative;
         }
         .info-item i {
             color: var(--secondary-color);
@@ -178,10 +194,31 @@
             font-weight: 500;
             font-size: 1rem;
             transition: color 0.3s;
+            flex-grow: 1;
         }
         .info-item a:hover { color: var(--secondary-color); }
+        .copy-btn {
+            cursor: pointer;
+            color: var(--light-text);
+            transition: color 0.3s ease;
+        }
+        .copy-btn:hover { color: var(--primary-color); }
+        .copy-feedback {
+            position: absolute;
+            right: 35px; /* Adjust as needed */
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--success-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        .copy-feedback.show { opacity: 1; }
 
-        /* Loader and Status Message */
         #status-container {
             text-align: center; padding: 60px 20px;
         }
@@ -211,6 +248,7 @@
             <div class="search-container">
                 <i class="fas fa-search"></i>
                 <input type="text" id="search-input" placeholder="جستجو در میان همکاران...">
+                <i class="fas fa-times" id="clear-search-btn"></i>
             </div>
             <div id="filter-buttons"></div>
         </div>
@@ -227,12 +265,33 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
-        
+
+        // --- NEW: Configuration Object ---
+        // Edit these values if your Excel column names are different
+        const config = {
+            excelFileName: 'numbers.xlsx',
+            columns: {
+                name: 'نام',
+                department: 'دپارتمان',
+
+                phone: 'داخلی',
+                email: 'ایمیل'
+            },
+            defaults: {
+                name: 'بدون نام',
+                department: 'بدون دپارتمان',
+                position: 'مشخص نشده',
+                phone: 'N/A',
+                email: 'N/A'
+            }
+        };
+
         let employees = [];
         let activeFilter = 'all';
 
         const directoryContainer = document.getElementById('directory-container');
         const searchInput = document.getElementById('search-input');
+        const clearSearchBtn = document.getElementById('clear-search-btn');
         const filterButtonsContainer = document.getElementById('filter-buttons');
         const statusContainer = document.getElementById('status-container');
         const statusMessage = document.getElementById('status-message');
@@ -246,6 +305,21 @@
             statusContainer.querySelector('.loader').style.display = showLoader ? 'block' : 'none';
         };
 
+        // --- NEW: Copy to Clipboard Function ---
+        const copyToClipboard = (text, element) => {
+            navigator.clipboard.writeText(text).then(() => {
+                const feedback = element.parentElement.querySelector('.copy-feedback');
+                if (feedback) {
+                    feedback.classList.add('show');
+                    setTimeout(() => {
+                        feedback.classList.remove('show');
+                    }, 1500);
+                }
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        };
+
         const renderDirectory = (employeeList) => {
             directoryContainer.innerHTML = '';
             
@@ -254,12 +328,9 @@
                 return;
             }
 
-            // Group employees by department
             const groupedByDept = employeeList.reduce((acc, employee) => {
-                const dept = employee.department || 'بدون دپارتمان';
-                if (!acc[dept]) {
-                    acc[dept] = [];
-                }
+                const dept = employee.department;
+                if (!acc[dept]) acc[dept] = [];
                 acc[dept].push(employee);
                 return acc;
             }, {});
@@ -275,22 +346,31 @@
                 const grid = document.createElement('div');
                 grid.className = 'directory-grid';
 
-                groupedByDept[dept].forEach(employee => {
+                // --- EDITED: Sort employees alphabetically within each department ---
+                const sortedEmployees = groupedByDept[dept].sort((a, b) => a.name.localeCompare(b.name, 'fa'));
+
+                sortedEmployees.forEach(employee => {
                     const card = document.createElement('div');
                     card.className = 'employee-card';
+                    // --- EDITED: Updated card HTML with position and copy buttons ---
                     card.innerHTML = `
                         <div class="card-header">
                             <i class="fas fa-user-circle"></i>
                             <h3>${employee.name}</h3>
+                            <div class="position">${employee.position}</div>
                         </div>
                         <div class="card-body">
                             <div class="info-item">
                                 <i class="fas fa-phone-alt"></i>
                                 <a href="tel:${employee.phone}">${employee.phone}</a>
+                                <i class="far fa-copy copy-btn" data-copy="${employee.phone}"></i>
+                                <div class="copy-feedback">کپی شد!</div>
                             </div>
                             <div class="info-item">
                                 <i class="fas fa-envelope"></i>
                                 <a href="mailto:${employee.email}">${employee.email}</a>
+                                <i class="far fa-copy copy-btn" data-copy="${employee.email}"></i>
+                                <div class="copy-feedback">کپی شد!</div>
                             </div>
                         </div>
                     `;
@@ -301,7 +381,7 @@
         };
         
         const setupFilters = () => {
-            const departments = ['all', ...new Set(employees.map(e => e.department || 'بدون دپارتمان'))];
+            const departments = ['all', ...new Set(employees.map(e => e.department))];
             filterButtonsContainer.innerHTML = departments.map(dep => `
                 <button class="filter-btn ${dep === 'all' ? 'active' : ''}" data-filter="${dep}">
                     ${dep === 'all' ? 'همه' : dep}
@@ -323,25 +403,28 @@
             let filteredEmployees = employees;
 
             if (activeFilter !== 'all') {
-                filteredEmployees = filteredEmployees.filter(e => (e.department || 'بدون دپارتمان') === activeFilter);
+                filteredEmployees = filteredEmployees.filter(e => e.department === activeFilter);
             }
 
             if (searchTerm) {
                 filteredEmployees = filteredEmployees.filter(e => 
                     e.name.toLowerCase().includes(searchTerm) || 
-                    (e.department || '').toLowerCase().includes(searchTerm) ||
+                    e.department.toLowerCase().includes(searchTerm) ||
+                    e.position.toLowerCase().includes(searchTerm) || // Search by position
                     e.phone.toString().includes(searchTerm)
                 );
             }
+            
+            // --- NEW: Show/hide clear search button ---
+            clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
             
             renderDirectory(filteredEmployees);
         };
 
         try {
-            // Fetch the Excel file from the same directory
-            const response = await fetch('numbers.xlsx');
+            const response = await fetch(config.excelFileName);
             if (!response.ok) {
-                throw new Error(`فایل numbers.xlsx یافت نشد. (خطای ${response.status})`);
+                throw new Error(`فایل ${config.excelFileName} یافت نشد. (خطای ${response.status})`);
             }
             const arrayBuffer = await response.arrayBuffer();
             const data = new Uint8Array(arrayBuffer);
@@ -350,14 +433,15 @@
             const worksheet = workbook.Sheets[firstSheetName];
             const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
+            // --- EDITED: Use the config object to map data ---
             employees = jsonData.map(row => ({
-                name: row['نام'] || 'بدون نام',
-                department: row['دپارتمان'] || 'بدون دپارتمان',
-                phone: row['داخلی'] || 'N/A',
-                email: row['ایمیل'] || 'N/A'
+                name: row[config.columns.name] || config.defaults.name,
+                department: row[config.columns.department] || config.defaults.department,
+                position: row[config.columns.position] || config.defaults.position,
+                phone: row[config.columns.phone] || config.defaults.phone,
+                email: row[config.columns.email] || config.defaults.email
             }));
 
-            // Hide status and show controls
             statusContainer.style.display = 'none';
             controlsPanel.style.display = 'flex';
 
@@ -366,10 +450,26 @@
 
         } catch (err) {
             console.error("Error loading or processing Excel file:", err);
-            displayStatus(`خطا: ${err.message}. لطفاً از وجود و صحت فایل numbers.xlsx در کنار این صفحه اطمینان حاصل کنید.`, false);
+            displayStatus(`خطا: ${err.message}. لطفاً از وجود و صحت فایل ${config.excelFileName} در کنار این صفحه اطمینان حاصل کنید.`, false);
         }
 
         searchInput.addEventListener('input', updateDisplay);
+        
+        // --- NEW: Event listener for clear search button ---
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            updateDisplay();
+            searchInput.focus();
+        });
+
+        // --- NEW: Event delegation for copy buttons ---
+        directoryContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('copy-btn')) {
+                const textToCopy = e.target.dataset.copy;
+                copyToClipboard(textToCopy, e.target);
+            }
+        });
+
     });
     </script>
 </body>
