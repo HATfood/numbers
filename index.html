@@ -21,6 +21,11 @@
             --success-color: #28a745;
         }
 
+        /* --- NEW: Universal Box Sizing --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Vazirmatn', sans-serif;
             background-color: var(--bg-color);
@@ -107,6 +112,7 @@
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s ease;
+            font-family: 'Vazirmatn', sans-serif; /* --- EDIT: Explicitly set font --- */
         }
         .filter-btn:hover { background-color: #f1f3f5; }
         .filter-btn.active {
@@ -195,6 +201,7 @@
             font-size: 1rem;
             transition: color 0.3s;
             flex-grow: 1;
+            word-break: break-all; /* --- EDIT: Prevent email/text overflow --- */
         }
         .info-item a:hover { color: var(--secondary-color); }
         .copy-btn {
@@ -205,7 +212,7 @@
         .copy-btn:hover { color: var(--primary-color); }
         .copy-feedback {
             position: absolute;
-            right: 35px; /* Adjust as needed */
+            right: 35px;
             top: 50%;
             transform: translateY(-50%);
             background-color: var(--success-color);
@@ -266,14 +273,12 @@
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
 
-        // --- NEW: Configuration Object ---
-        // Edit these values if your Excel column names are different
         const config = {
             excelFileName: 'numbers.xlsx',
             columns: {
                 name: 'نام',
                 department: 'دپارتمان',
-
+                position: 'سمت',
                 phone: 'داخلی',
                 email: 'ایمیل'
             },
@@ -297,6 +302,12 @@
         const statusMessage = document.getElementById('status-message');
         const controlsPanel = document.getElementById('controls-panel');
         
+        // --- NEW: Function to convert numbers to Persian digits ---
+        const toPersianDigits = (num) => {
+            const persian = { '0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹' };
+            return String(num).replace(/[0123456789]/g, (digit) => persian[digit]);
+        };
+
         const displayStatus = (message, showLoader = false) => {
             directoryContainer.innerHTML = '';
             controlsPanel.style.display = 'none';
@@ -305,7 +316,6 @@
             statusContainer.querySelector('.loader').style.display = showLoader ? 'block' : 'none';
         };
 
-        // --- NEW: Copy to Clipboard Function ---
         const copyToClipboard = (text, element) => {
             navigator.clipboard.writeText(text).then(() => {
                 const feedback = element.parentElement.querySelector('.copy-feedback');
@@ -335,7 +345,19 @@
                 return acc;
             }, {});
 
-            const sortedDepts = Object.keys(groupedByDept).sort();
+            // --- NEW: Custom department sorting logic ---
+            const customDeptOrder = ['مسئول دفتر', 'مدیریت', 'معاونت مالی هلدینگ کشت و صنعت', 'منابع انسانی'];
+            const allDepts = Object.keys(groupedByDept);
+            
+            // Start with the custom-ordered departments that exist in the data
+            const sortedDepts = customDeptOrder.filter(d => allDepts.includes(d));
+
+            // Add the remaining departments, sorted alphabetically
+            allDepts
+                .filter(d => !customDeptOrder.includes(d))
+                .sort((a, b) => a.localeCompare(b, 'fa'))
+                .forEach(d => sortedDepts.push(d));
+
 
             for (const dept of sortedDepts) {
                 const divider = document.createElement('div');
@@ -346,13 +368,12 @@
                 const grid = document.createElement('div');
                 grid.className = 'directory-grid';
 
-                // --- EDITED: Sort employees alphabetically within each department ---
                 const sortedEmployees = groupedByDept[dept].sort((a, b) => a.name.localeCompare(b.name, 'fa'));
 
                 sortedEmployees.forEach(employee => {
                     const card = document.createElement('div');
                     card.className = 'employee-card';
-                    // --- EDITED: Updated card HTML with position and copy buttons ---
+                    // --- EDIT: Use toPersianDigits for phone number display ---
                     card.innerHTML = `
                         <div class="card-header">
                             <i class="fas fa-user-circle"></i>
@@ -362,7 +383,7 @@
                         <div class="card-body">
                             <div class="info-item">
                                 <i class="fas fa-phone-alt"></i>
-                                <a href="tel:${employee.phone}">${employee.phone}</a>
+                                <a href="tel:${employee.phone}">${toPersianDigits(employee.phone)}</a>
                                 <i class="far fa-copy copy-btn" data-copy="${employee.phone}"></i>
                                 <div class="copy-feedback">کپی شد!</div>
                             </div>
@@ -407,15 +428,15 @@
             }
 
             if (searchTerm) {
+                // The search continues to work on the original English numbers
                 filteredEmployees = filteredEmployees.filter(e => 
                     e.name.toLowerCase().includes(searchTerm) || 
                     e.department.toLowerCase().includes(searchTerm) ||
-                    e.position.toLowerCase().includes(searchTerm) || // Search by position
-                    e.phone.toString().includes(searchTerm)
+                    e.position.toLowerCase().includes(searchTerm) ||
+                    String(e.phone).toLowerCase().includes(searchTerm)
                 );
             }
             
-            // --- NEW: Show/hide clear search button ---
             clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
             
             renderDirectory(filteredEmployees);
@@ -433,7 +454,6 @@
             const worksheet = workbook.Sheets[firstSheetName];
             const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-            // --- EDITED: Use the config object to map data ---
             employees = jsonData.map(row => ({
                 name: row[config.columns.name] || config.defaults.name,
                 department: row[config.columns.department] || config.defaults.department,
@@ -455,14 +475,12 @@
 
         searchInput.addEventListener('input', updateDisplay);
         
-        // --- NEW: Event listener for clear search button ---
         clearSearchBtn.addEventListener('click', () => {
             searchInput.value = '';
             updateDisplay();
             searchInput.focus();
         });
 
-        // --- NEW: Event delegation for copy buttons ---
         directoryContainer.addEventListener('click', (e) => {
             if (e.target.classList.contains('copy-btn')) {
                 const textToCopy = e.target.dataset.copy;
