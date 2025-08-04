@@ -433,7 +433,9 @@
                     const managerTagHtml = /^مدیر(?!یت)/.test(employee.position)
                     ? `<span class="manager-tag">مدیر</span>` 
                     : '';
-
+                    const managerTagHtml = employee.position.includes('رئیس بازاریابی')
+                    ? `<span class="manager-tag">رئیس</span>` 
+                    : '';
                     card.innerHTML = `
                         <div class="card-header">
                             <h3>${employee.name} ${managerTagHtml}</h3>
