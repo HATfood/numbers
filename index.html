@@ -406,25 +406,17 @@
                 const grid = document.createElement('div');
                 grid.className = 'directory-grid';
 
+                const sortedEmployees = groupedByDept[dept].sort((a, b) => a.lastName.localeCompare(b.lastName, 'fa'));
 
-                const sortedEmployees = groupedByDept[dept].sort((a, b) => {
-                    // First, check the manager status for both employees from their position
-                    const isAManager = employee.position.includes('مدیر') && !employee.position.includes('مدیریت')
-                    const isBManager = employee.position.includes('مدیر') && !employee.position.includes('مدیریت')
-                
-                    // Rule 1: If 'a' is a manager and 'b' is not, 'a' should come first.
-                    if (isAManager && !isBManager) {
-                        return -1;
-                    }
+                sortedEmployees.forEach(employee => {
+                    const card = document.createElement('div');
+                    card.className = 'employee-card';
                     
-                    // Rule 2: If 'b' is a manager and 'a' is not, 'b' should come first.
-                    if (!isAManager && isBManager) {
-                        return 1;
-                    }
-                
-                    // Rule 3 (Tie-breaker): If both are managers OR both are not, sort by last name.
-                    return a.lastName.localeCompare(b.lastName, 'fa');
-                });
+                    // --- EDIT: Add logic for the manager tag ---
+                    const managerTagHtml = /^مدیر(?!یت)/.test(employee.position)
+                    ? `<span class="manager-tag">مدیر</span>` 
+                    : '';
+
 
                 sortedEmployees.forEach(employee => {
                     const card = document.createElement('div');
