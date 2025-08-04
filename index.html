@@ -120,7 +120,7 @@
             border-color: var(--primary-color);
             font-weight: 700;
         }
-        
+
         .department-divider {
             display: flex;
             align-items: center;
@@ -141,7 +141,7 @@
             background-color: var(--divider-bg);
             border-radius: 2px;
         }
-        
+
         .directory-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -161,7 +161,7 @@
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
-        
+
         .card-header {
             padding: 20px;
             text-align: center;
@@ -255,7 +255,7 @@
             color: var(--light-text);
             font-size: 0.9rem;
         }
-        
+
         .loader {
             border: 5px solid #f3f3f3;
             border-top: 5px solid var(--secondary-color);
@@ -267,7 +267,7 @@
         }
         #status-message { font-size: 1.2rem; color: var(--light-text); }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
+
     </style>
 </head>
 <body>
@@ -277,7 +277,7 @@
             <h1><i class="fas fa-address-book"></i> دفترچه تلفن شرکت هستی آرین تامین</h1>
             <p>لیست اطلاعات تماس همکاران</p>
         </header>
-        
+
         <div class="controls" id="controls-panel" style="display: none;">
             <div class="search-container">
                 <i class="fas fa-search"></i>
@@ -306,7 +306,7 @@
         <!-- === END OF FOOTER CODE === -->
 
     </div> <!-- This is the closing tag for class="container" -->
-        
+
     </div>
 
     <script>
@@ -342,7 +342,7 @@
         const statusContainer = document.getElementById('status-container');
         const statusMessage = document.getElementById('status-message');
         const controlsPanel = document.getElementById('controls-panel');
-        
+
         const toPersianDigits = (num) => {
             const persian = { '0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹' };
             return String(num).replace(/[0123456789]/g, (digit) => persian[digit]);
@@ -372,7 +372,7 @@
 
         const renderDirectory = (employeeList) => {
             directoryContainer.innerHTML = '';
-            
+
             if (employeeList.length === 0) {
                 directoryContainer.innerHTML = '<p style="text-align: center; color: var(--light-text); font-size: 1.2rem; padding: 40px 0;">هیچ نتیجه‌ای مطابق با جستجوی شما یافت نشد.</p>';
                 return;
@@ -388,7 +388,7 @@
             // --- EDIT: Updated custom department sorting order ---
             const customDeptOrder = ['مسئول دفتر', 'مدیریت', 'معاونت مالی هلدینگ کشت و صنعت'];
             const allDepts = Object.keys(groupedByDept);
-            
+
             const sortedDepts = customDeptOrder.filter(d => allDepts.includes(d));
 
             allDepts
@@ -402,7 +402,7 @@
                 divider.className = 'department-divider';
                 divider.innerHTML = `<h2>${dept}</h2>`;
                 directoryContainer.appendChild(divider);
-                
+
                 const grid = document.createElement('div');
                 grid.className = 'directory-grid';
 
@@ -411,18 +411,10 @@
                 sortedEmployees.forEach(employee => {
                     const card = document.createElement('div');
                     card.className = 'employee-card';
-                    
-                    // --- EDIT: Add logic for the manager tag ---
-                    const managerTagHtml = /^مدیر(?!یت)/.test(employee.position)
-                    ? `<span class="manager-tag">مدیر</span>` 
-                    : '';
 
-
-                sortedEmployees.forEach(employee => {
-                    const card = document.createElement('div');
-                    card.className = 'employee-card';
-                    
                     // --- EDIT: Add logic for the manager tag ---
+                const managerTagHtml = /\bمدیر\b/.test(employee.position)
+                    ? `<span class="manager-tag">مدیر</span>`
                     const managerTagHtml = /^مدیر(?!یت)/.test(employee.position)
                     ? `<span class="manager-tag">مدیر</span>` 
                     : '';
@@ -452,7 +444,7 @@
                 directoryContainer.appendChild(grid);
             }
         };
-        
+
         const setupFilters = () => {
             const departments = ['all', ...new Set(employees.map(e => e.department))];
             filterButtonsContainer.innerHTML = departments.map(dep => `
@@ -487,9 +479,9 @@
                     String(e.phone).toLowerCase().includes(searchTerm)
                 );
             }
-            
+
             clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
-            
+
             renderDirectory(filteredEmployees);
         };
 
@@ -531,7 +523,7 @@
         }
 
         searchInput.addEventListener('input', updateDisplay);
-        
+
         clearSearchBtn.addEventListener('click', () => {
             searchInput.value = '';
             updateDisplay();
