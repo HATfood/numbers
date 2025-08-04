@@ -409,8 +409,8 @@
 
                 const sortedEmployees = groupedByDept[dept].sort((a, b) => {
                     // First, check the manager status for both employees from their position
-                    const isAManager = /^مدیر(?!یت)/.test(employee.position);
-                    const isBManager = /^مدیر(?!یت)/.test(employee.position);
+                    const isAManager = employee.position.includes('مدیر') && !employee.position.includes('مدیریت')
+                    const isBManager = employee.position.includes('مدیر') && !employee.position.includes('مدیریت')
                 
                     // Rule 1: If 'a' is a manager and 'b' is not, 'a' should come first.
                     if (isAManager && !isBManager) {
