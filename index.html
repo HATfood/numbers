@@ -407,23 +407,7 @@
                 grid.className = 'directory-grid';
 
 
-                const sortedEmployees = groupedByDept[dept].sort((a, b) => {
-                    // Check if either employee is a manager
-                    const isAManager = /\bمدیر\b/.test(a.position);
-                    const isBManager = /\bمدیر\b/.test(b.position);
-                
-                    // If 'a' is a manager and 'b' is not, 'a' comes first.
-                    if (isAManager && !isBManager) {
-                        return -1;
-                    }
-                    // If 'b' is a manager and 'a' is not, 'b' comes first.
-                    if (!isAManager && isBManager) {
-                        return 1;
-                    }
-                
-                    // If both are managers or both are not, sort alphabetically by last name.
-                    return a.lastName.localeCompare(b.lastName, 'fa');
-                });
+                const sortedEmployees = groupedByDept[dept].sort((a, b) => a.lastName.localeCompare(b.lastName, 'fa'));
 
                 sortedEmployees.forEach(employee => {
                     const card = document.createElement('div');
