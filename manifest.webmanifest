@@ -1,8 +1,8 @@
 {
   "name": "HAT Numbers",
   "short_name": "HAT Numbers",
-  "start_url": "/numbers/",
-  "scope": "/numbers/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1e3f28",
@@ -15,3 +15,4 @@
     { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
+
