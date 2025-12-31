@@ -287,6 +287,26 @@
             .grid { grid-template-columns: 1fr; }
             .sticky-controls { top: 0; border-radius: 0 0 16px 16px; }
         }
+
+        .qr-wrapper {
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .qr-wrapper img {
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .qr-wrapper small {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        
     </style>
 </head>
 <body>
@@ -362,15 +382,15 @@
         <div class="info-block">
             <i class="fas fa-file-alt"></i>
             <div class="info-block-content">
-                <h4>فایل Onboarding شرکت</h4>
+                <h4>فایل‌های ضروری</h4>
         
                 <p>
-                    دانلود فایل معرفی و آنبردینگ شرکت:
+                     فایل معرفی و آنبردینگ:
                     <a 
                       href="https://drive.google.com/file/d/1gOiuWvMf54Ks_lroGuqbMWdwIiPdvTiQ/view?usp=sharing"
                       target="_blank"
                       rel="noopener noreferrer">
-                      مشاهده / دانلود فایل
+                      دانلود 
                     </a>
                 </p>
         
@@ -378,7 +398,6 @@
                     <img 
                       src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://drive.google.com/file/d/1gOiuWvMf54Ks_lroGuqbMWdwIiPdvTiQ/view?usp=sharing"
                       alt="QR Code – Company Onboarding File">
-                    <small>اسکن برای دسترسی سریع</small>
                 </div>
             </div>
         </div>
