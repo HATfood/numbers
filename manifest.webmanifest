@@ -1,0 +1,17 @@
+{
+  "name": "HAT Numbers",
+  "short_name": "HAT Numbers",
+  "start_url": "/numbers/",
+  "scope": "/numbers/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e3f28",
+  "description": "دفترچه تلفن شرکت هستی آرین تامین",
+  "lang": "fa",
+  "dir": "rtl",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
