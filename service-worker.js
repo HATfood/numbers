@@ -1,9 +1,9 @@
 const CACHE_NAME = "hat-numbers-v1";
 const ASSETS = [
-  "/numbers/",
-  "/numbers/index.html",
-  "/numbers/manifest.webmanifest",
-  "/numbers/logo.png"
+  "/",
+  "/index.html",
+  "/manifest.webmanifest",
+  "/logo.png"
 ];
 
 self.addEventListener("install", (event) => {
@@ -26,3 +26,4 @@ self.addEventListener("fetch", (event) => {
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
 });
+
