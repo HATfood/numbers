@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <meta name="theme-color" content="#1e3f28">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="HAT Signs">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
+
+    <title>امضای ایمیل همکاران - شرکت هستی آرین تامین</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: #0f172a;
+                --bg-card: #1e293b;
+                --text-main: #f1f5f9;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+            }
+        }
+
+        * { box-sizing: border-box; transition: all 0.2s ease; font-family: 'Vazirmatn', sans-serif; }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 2rem;
+            padding: 10px;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-logo {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .header h1 {
+            font-size: 1.4rem;
+            margin: 0;
+            background: linear-gradient(90deg, #575756, #1e3f28);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem 1.2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: var(--shadow);
+        }
+
+        .back-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .sticky-controls {
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
+            background: rgba(var(--bg-card), 0.85);
+            backdrop-filter: blur(12px);
+            padding: 1.2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .search-wrapper {
+            position: relative;
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 0.8rem 3rem 0.8rem 1rem;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border-color);
+            background: var(--bg-body);
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        #search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-icon { 
+            position: absolute; 
+            right: 1.2rem; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: var(--text-muted); 
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            border-color: var(--primary);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.6rem;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .sign-badge {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 50px;
+            font-weight: bold;
+        }
+
+        .img-container {
+            width: 100%;
+            background: #ffffff;
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 140px;
+            overflow: hidden;
+        }
+
+        .img-container img {
+            max-width: 100%;
+            max-height: 180px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.6rem;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-body);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            grid-column: 1 / -1;
+        }
+
+        footer { 
+            text-align: center; 
+            margin-top: 3rem; 
+            padding: 2rem; 
+            color: var(--text-muted); 
+            font-size: 0.8rem; 
+            border-top: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .back-btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="header">
+        <div class="header-brand">
+            <img src="logo.png" alt="لوگو شرکت" class="header-logo" onerror="this.src='https://via.placeholder.com/50x50?text=LOGO'">
+            <h1>گالری امضای ایمیل همکاران</h1>
+        </div>
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-right"></i>
+            <span>بازگشت به دفترچه تلفن</span>
+        </a>
+    </header>
+
+    <div class="sticky-controls">
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="search-input" placeholder="جستجوی شماره امضا (مثلاً ۱ یا 1)...">
+        </div>
+    </div>
+
+    <main id="signs-grid" class="grid"></main>
+
+    <footer>
+        تهیه شده توسط واحد مارکتینگ | ۱۴۰۴
+        <br>
+        <a href="index.html" style="color: var(--primary); text-decoration: none; font-weight: bold; margin-top: 8px; display: inline-block;">
+            بازگشت به دفترچه تلفن شرکت
+        </a>
+    </footer>
+</div>
+
+<script>
+    const TOTAL_SIGNS = 31;
+
+    const toPersian = (num) => String(num).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+    const toEnglish = (str) => String(str).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+
+    function renderGallery(filter = '') {
+        const container = document.getElementById('signs-grid');
+        container.innerHTML = '';
+        
+        const cleanFilter = toEnglish(filter.trim());
+        let count = 0;
+
+        for (let i = 1; i <= TOTAL_SIGNS; i++) {
+            const fileName = `${i}.png`;
+            const faNumber = toPersian(i);
+            const title = `امضای شماره ${faNumber}`;
+
+            if (cleanFilter && !String(i).includes(cleanFilter)) {
+                continue;
+            }
+
+            count++;
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-header">
+                    <h3>${title}</h3>
+                    <span class="sign-badge">#${faNumber}</span>
+                </div>
+                <div class="img-container">
+                    <img src="${fileName}" alt="${title}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x120?text=تصویر+یافت+نشد'">
+                </div>
+                <div class="card-actions">
+                    <a href="${fileName}" download="Email-Signature-${i}.png" class="btn btn-primary">
+                        <i class="fas fa-download"></i>
+                        <span>دانلود PNG</span>
+                    </a>
+                    <button class="btn btn-secondary" onclick="copyImageLink('${fileName}')">
+                        <i class="fas fa-link"></i>
+                        <span>کپی لینک</span>
+                    </button>
+                </div>
+            `;
+            container.appendChild(card);
+        }
+
+        if (count === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fas fa-search fa-2x" style="margin-bottom:10px;"></i><p>امضایی با این شماره یافت نشد.</p></div>`;
+        }
+    }
+
+    function copyImageLink(fileName) {
+        const fullUrl = window.location.origin + window.location.pathname.replace('sign.html', '') + fileName;
+        navigator.clipboard.writeText(fullUrl).then(() => {
+            alert('لینک تصویر کپی شد:\n' + fullUrl);
+        }).catch(() => {
+            alert('خطا در کپی لینک');
+        });
+    }
+
+    document.getElementById('search-input').addEventListener('input', (e) => {
+        renderGallery(e.target.value);
+    });
+
+    window.onload = () => renderGallery();
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/numbers/service-worker.js");
+    });
+  }
+</script>
+
+</body>
+</html>
