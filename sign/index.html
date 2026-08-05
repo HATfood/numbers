@@ -176,7 +176,7 @@
 
         .card-header h3 {
             margin: 0;
-            font-size: 0.95rem;
+            font-size: 1rem;
             color: var(--text-main);
             font-weight: 700;
         }
@@ -276,7 +276,7 @@
     <div class="sticky-controls">
         <div class="search-wrapper">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" id="search-input" placeholder="جستجوی شماره امضا (مثلاً ۱ یا 1)...">
+            <input type="text" id="search-input" placeholder="جستجوی نام همکار یا شماره امضا...">
         </div>
     </div>
 
@@ -292,7 +292,42 @@
 </div>
 
 <script>
-    const TOTAL_SIGNS = 31;
+    // لیست اسامی به ترتیب شماره فایل عکس (1.png تا 33.png)
+    const SIGNATURES = [
+        { id: 1, name: "مجید سعادت" },
+        { id: 2, name: "مهدی رنجبر" },
+        { id: 3, name: "سپیده دماوندی" },
+        { id: 4, name: "سید رضا نژادصالحی" },
+        { id: 5, name: "سید رضا ظریفی" },
+        { id: 6, name: "شهناز رحیمی" },
+        { id: 7, name: "محمد کیامرزی" },
+        { id: 8, name: "افسانه حقی" },
+        { id: 9, name: "زهرا کنشلو" },
+        { id: 10, name: "سمانه اکبری" },
+        { id: 11, name: "فاطمه محمدبیگی" },
+        { id: 12, name: "سید حنیف حسینی" },
+        { id: 13, name: "وحید رحمانی" },
+        { id: 14, name: "مریم دهقان" },
+        { id: 15, name: "فروغ مهدیان" },
+        { id: 16, name: "میثم گرایلی" },
+        { id: 17, name: "فرشته عالی‌خانی" },
+        { id: 18, name: "عادل غلام‌نژاد" },
+        { id: 19, name: "شیرین فیروزبخت" },
+        { id: 20, name: "مرتضی روح زنده" },
+        { id: 21, name: "امید حیدری" },
+        { id: 22, name: "مهتاب بیات" },
+        { id: 23, name: "یزدان صادقی" },
+        { id: 24, name: "علیرضا تاد" },
+        { id: 25, name: "شیما سهامی" },
+        { id: 26, name: "علیرضا رضایی" },
+        { id: 27, name: "پرستو سیفی‌نژاد" },
+        { id: 28, name: "نیما قاسمی" },
+        { id: 29, name: "سید محمد مسن‌آبادی" },
+        { id: 30, name: "بهاره عزیزی" },
+        { id: 31, name: "سعید خانی محمودی" },
+        { id: 32, name: "ملیکا اسدی" },
+        { id: 33, name: "فرانک شجاعی" }
+    ];
 
     // تبدیل اعداد
     const toPersian = (num) => String(num).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
@@ -301,7 +336,7 @@
         return String(str).replace(/[۰-۹]/g, c => p2e[c] || c);
     };
 
-    // محاسبه دقیق آدرس عکس‌ها فارغ از نحوه باز شدن URL در GitHub Pages
+    // محاسبه دقیق آدرس عکس‌ها در GitHub Pages
     function getImgUrl(filename) {
         let base = window.location.pathname;
         if (!base.endsWith('/')) {
@@ -318,17 +353,21 @@
         const container = document.getElementById('signs-grid');
         container.innerHTML = '';
         
-        const cleanFilter = toEnglish(filter.trim());
+        const rawFilter = filter.trim().toLowerCase();
+        const numFilter = toEnglish(rawFilter);
         let count = 0;
 
-        for (let i = 1; i <= TOTAL_SIGNS; i++) {
-            const fileName = `${i}.png`;
+        SIGNATURES.forEach(item => {
+            const fileName = `${item.id}.png`;
             const fullImgPath = getImgUrl(fileName);
-            const faNumber = toPersian(i);
-            const title = `امضای شماره ${faNumber}`;
+            const faNumber = toPersian(item.id);
 
-            if (cleanFilter && !String(i).includes(cleanFilter)) {
-                continue;
+            // جستجو بر اساس نام یا شماره (فارسی و انگلیسی)
+            const matchName = item.name.toLowerCase().includes(rawFilter);
+            const matchNumber = String(item.id).includes(numFilter) || faNumber.includes(rawFilter);
+
+            if (rawFilter && !matchName && !matchNumber) {
+                return;
             }
 
             count++;
@@ -336,14 +375,14 @@
             card.className = 'card';
             card.innerHTML = `
                 <div class="card-header">
-                    <h3>${title}</h3>
+                    <h3>${item.name}</h3>
                     <span class="sign-badge">#${faNumber}</span>
                 </div>
                 <div class="img-container">
-                    <img src="${fullImgPath}" alt="${title}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x120?text=تصویر+${i}+یافت+نشد'">
+                    <img src="${fullImgPath}" alt="امضای ${item.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x120?text=تصویر+یافت+نشد'">
                 </div>
                 <div class="card-actions">
-                    <a href="${fullImgPath}" download="Email-Signature-${i}.png" class="btn btn-primary">
+                    <a href="${fullImgPath}" download="Signature-${item.name.replace(/\s+/g, '-')}.png" class="btn btn-primary">
                         <i class="fas fa-download"></i>
                         <span>دانلود PNG</span>
                     </a>
@@ -354,10 +393,10 @@
                 </div>
             `;
             container.appendChild(card);
-        }
+        });
 
         if (count === 0) {
-            container.innerHTML = `<div class="empty-state"><i class="fas fa-search fa-2x" style="margin-bottom:10px;"></i><p>امضایی با این شماره یافت نشد.</p></div>`;
+            container.innerHTML = `<div class="empty-state"><i class="fas fa-search fa-2x" style="margin-bottom:10px;"></i><p>امضایی با این مشخصات یافت نشد.</p></div>`;
         }
     }
 
@@ -373,7 +412,7 @@
         renderGallery(e.target.value);
     });
 
-    // اجرای فوری بدون معطل ماندن برای window.onload
+    // اجرای فوری اسکریپت
     renderGallery();
 </script>
 
