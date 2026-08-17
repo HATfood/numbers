@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <meta name="theme-color" content="#1e3f28">
+    <!-- iOS Add to Home Screen support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="HAT Numbers">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
+
+    <title>دفترچه تلفن شرکت هستی آرین تامین</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: #0f172a;
+                --bg-card: #1e293b;
+                --text-main: #f1f5f9;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+            }
+        }
+
+        * { box-sizing: border-box; transition: all 0.2s ease; font-family: 'Vazirmatn', sans-serif; }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 2rem;
+            padding: 10px;
+        }
+
+        .header-logo {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            background: linear-gradient(90deg, #575756, #1e3f28);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .sticky-controls {
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
+            background: rgba(var(--bg-card), 0.8);
+            backdrop-filter: blur(12px);
+            padding: 1.2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 0.8rem 3rem 0.8rem 1rem;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border-color);
+            background: var(--bg-body);
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        #search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-icon { position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        .filter-container {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .dept-section { margin-bottom: 2.5rem; }
+        
+        .dept-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .dept-title h2 { font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin: 0; }
+        .dept-line { flex-grow: 1; height: 1px; background: var(--border-color); }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            padding: 1.2rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border-color: var(--primary);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .user-info h3 { margin: 0; font-size: 1rem; }
+        .user-info p { margin: 0; color: var(--text-muted); font-size: 0.8rem; }
+
+        .contact-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0.7rem;
+            background: var(--bg-body);
+            border-radius: 8px;
+        }
+
+        .contact-link {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .copy-trigger {
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 0.85rem;
+        }
+
+        .copy-trigger:hover { color: var(--primary); }
+
+        .badge-manager {
+            position: absolute;
+            top: 0.8rem;
+            left: 0.8rem;
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 0.65rem;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-weight: 800;
+        }
+
+        .company-info-section {
+            margin-top: 4rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        @media (max-width: 1200px) {
+            .company-info-section {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .company-info-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .company-info-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+        .info-block { display: flex; gap: 1rem; }
+        .info-block i { 
+            font-size: 1.5rem; 
+            color: var(--primary); 
+            background: rgba(37, 99, 235, 0.1);
+            padding: 12px;
+            border-radius: 12px;
+            height: fit-content;
+        }
+        .info-block-content h4 { margin: 0 0 5px 0; font-size: 1rem; color: var(--text-main); }
+        .info-block-content p, .info-block-content a { 
+            margin: 0; 
+            font-size: 0.85rem; 
+            color: var(--text-muted); 
+            text-decoration: none;
+        }
+        .info-block-content a:hover { color: var(--primary); }
+
+        footer { text-align: center; margin-top: 2rem; padding: 2rem; color: var(--text-muted); font-size: 0.75rem; }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+            .sticky-controls { top: 0; border-radius: 0 0 16px 16px; }
+        }
+
+        .qr-wrapper {
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .qr-wrapper img {
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .qr-wrapper small {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        /* 2026 visual refresh. Functional selectors and behavior remain unchanged. */
+        :root {
+            --primary: #1e3f28;
+            --primary-hover: #15321f;
+            --bg-body: #f4f6f3;
+            --bg-card: #ffffff;
+            --text-main: #17201a;
+            --text-muted: #68736b;
+            --border-color: #dfe5df;
+            --accent: #c6a96a;
+            --success: #16834b;
+            --radius-lg: 24px;
+            --radius-md: 18px;
+            --shadow: 0 18px 50px rgba(28, 52, 35, 0.08), 0 2px 8px rgba(28, 52, 35, 0.04);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: #101611;
+                --bg-card: #19211b;
+                --text-main: #f2f5f2;
+                --text-muted: #a9b3ab;
+                --border-color: #2e3931;
+                --shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+            }
+        }
+
+        html { scroll-behavior: smooth; }
+
+        * {
+            transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+            transition-duration: 180ms;
+            transition-timing-function: ease;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 90% -5%, rgba(30, 63, 40, 0.12), transparent 32rem),
+                radial-gradient(circle at 5% 25%, rgba(198, 169, 106, 0.09), transparent 26rem),
+                var(--bg-body);
+        }
+
+        .container {
+            max-width: 1180px;
+            padding: 2rem 1.25rem 0;
+        }
+
+        .header {
+            justify-content: flex-start;
+            min-height: 112px;
+            gap: 18px;
+            margin-bottom: 1.25rem;
+            padding: 1.25rem 1.5rem;
+            border: 1px solid rgba(30, 63, 40, 0.12);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(115deg, rgba(255,255,255,.88), rgba(255,255,255,.62));
+            box-shadow: 0 10px 35px rgba(30, 63, 40, 0.05);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .header-logo {
+            width: 66px;
+            height: 66px;
+            padding: 7px;
+            border-radius: 18px;
+            background: rgba(255,255,255,.72);
+            box-shadow: 0 8px 24px rgba(30,63,40,.10);
+        }
+
+        .header h1 {
+            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+            line-height: 1.45;
+            background: linear-gradient(90deg, #1e3f28, #526158);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .sticky-controls {
+            top: 12px;
+            padding: 1rem;
+            margin-bottom: 2.25rem;
+            background: rgba(255,255,255,.82);
+            border-color: rgba(30,63,40,.12);
+            box-shadow: 0 12px 38px rgba(30,63,40,.10);
+            backdrop-filter: blur(22px) saturate(140%);
+            -webkit-backdrop-filter: blur(22px) saturate(140%);
+        }
+
+        .search-wrapper { margin-bottom: .85rem; }
+
+        #search-input {
+            min-height: 52px;
+            padding-right: 3.15rem;
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            background: rgba(244,246,243,.78);
+            font-size: .95rem;
+            font-weight: 500;
+        }
+
+        #search-input::placeholder { color: #879088; }
+        #search-input:hover { border-color: rgba(30,63,40,.38); }
+        #search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(30,63,40,.11); }
+        .search-icon { right: 1.25rem; color: var(--primary); }
+
+        .filter-container {
+            justify-content: flex-start;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding: 1px 1px 5px;
+            scrollbar-width: thin;
+        }
+
+        .filter-btn {
+            flex: 0 0 auto;
+            min-height: 37px;
+            padding: .45rem 1.05rem;
+            border-radius: 12px;
+            background: rgba(255,255,255,.55);
+            color: #59635b;
+        }
+
+        .filter-btn:hover { color: var(--primary); border-color: rgba(30,63,40,.35); transform: translateY(-1px); }
+        .filter-btn.active { background: var(--primary); border-color: var(--primary); box-shadow: 0 7px 18px rgba(30,63,40,.18); }
+
+        .dept-section { margin-bottom: 3rem; }
+        .dept-title { gap: .9rem; margin-bottom: 1rem; }
+        .dept-title h2 { font-size: 1.12rem; color: var(--primary); }
+        .dept-line { background: linear-gradient(90deg, var(--border-color), transparent); }
+
+        .grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+
+        .card {
+            min-height: 178px;
+            padding: 1.15rem;
+            gap: .75rem;
+            overflow: hidden;
+            border-color: rgba(30,63,40,.10);
+            box-shadow: 0 4px 18px rgba(30,63,40,.035);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            opacity: 0;
+        }
+
+        .card:hover { transform: translateY(-4px); border-color: rgba(30,63,40,.28); box-shadow: 0 18px 38px rgba(30,63,40,.10); }
+        .card:hover::before { opacity: 1; }
+        .card-top { min-height: 52px; }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), 0 7px 16px rgba(0,0,0,.10);
+        }
+
+        .user-info { min-width: 0; }
+        .user-info h3 { font-size: 1.02rem; font-weight: 800; }
+        .user-info p { margin-top: 2px; font-size: .78rem; }
+
+        .contact-row {
+            min-height: 42px;
+            padding: .48rem .75rem;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            background: rgba(244,246,243,.82);
+        }
+
+        .contact-row:hover { background: rgba(30,63,40,.055); border-color: rgba(30,63,40,.10); }
+        .contact-link { min-width: 0; font-size: .9rem; }
+        .contact-link span { overflow: hidden; text-overflow: ellipsis; }
+        .copy-trigger { border-radius: 8px; }
+        .copy-trigger:hover { background: rgba(30,63,40,.09); }
+
+        .badge-manager {
+            top: .9rem;
+            left: .9rem;
+            padding: 3px 8px;
+            border: 1px solid rgba(146,64,14,.10);
+            border-radius: 8px;
+        }
+
+        .company-info-section {
+            margin-top: 4.5rem;
+            padding: 1.5rem;
+            gap: 1rem;
+            border-color: rgba(30,63,40,.12);
+            background: rgba(255,255,255,.75);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .info-block {
+            min-width: 0;
+            padding: 1rem;
+            border: 1px solid rgba(30,63,40,.08);
+            border-radius: 16px;
+            background: rgba(255,255,255,.52);
+        }
+
+        .info-block:hover { border-color: rgba(30,63,40,.20); transform: translateY(-2px); }
+        .info-block i { width: 46px; height: 46px; padding: 0; display: grid; place-items: center; font-size: 1.1rem; color: var(--primary); background: rgba(30,63,40,.09); }
+        .info-block-content { min-width: 0; }
+        .info-block-content h4 { margin-bottom: 8px; }
+        .info-block-content p { margin-bottom: 4px; }
+        .qr-wrapper img { width: 112px; height: 112px; padding: 5px; background: #fff; border-radius: 12px; }
+
+        footer {
+            margin-top: 2.5rem;
+            padding: 1.5rem 1rem 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .header, .sticky-controls, .company-info-section { background: rgba(25,33,27,.82); }
+            .header-logo, .info-block { background: rgba(255,255,255,.035); }
+            #search-input, .contact-row { background: rgba(255,255,255,.04); }
+            .filter-btn { background: rgba(255,255,255,.035); color: var(--text-muted); }
+            .header h1 { background: linear-gradient(90deg, #dce9df, #9fb2a3); -webkit-background-clip: text; background-clip: text; }
+            .dept-title h2 { color: #c5d5c8; }
+        }
+
+        @media (max-width: 700px) {
+            .container { padding: .75rem .75rem 0; }
+            .header { min-height: 88px; padding: 1rem; margin-bottom: .75rem; border-radius: 20px; }
+            .header-logo { width: 54px; height: 54px; border-radius: 15px; }
+            .header h1 { font-size: 1.08rem; }
+            .sticky-controls { top: 0; margin-inline: -.75rem; padding: .75rem; border-radius: 0 0 20px 20px; }
+            #search-input { min-height: 48px; }
+            .grid { grid-template-columns: 1fr; gap: .75rem; }
+            .card { min-height: 0; }
+            .company-info-section { margin: 3rem 0 0; padding: .75rem; border-radius: 20px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+        }
+        
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="header">
+        <img src="logo.png" alt="لوگو شرکت" class="header-logo" onerror="this.src='https://via.placeholder.com/50x50?text=LOGO'">
+        <h1>دفترچه تلفن شرکت هستی آرین تامین</h1>
+    </header>
+
+    <div class="sticky-controls" id="controls" style="display:none;">
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="search-input" placeholder="جستجوی نام، واحد یا شماره داخلی...">
+        </div>
+        <div class="filter-container" id="filter-pills"></div>
+    </div>
+
+    <div id="loading-placeholder">
+        <div class="grid">
+            <div class="card" style="height: 180px; opacity:0.5;"><div class="skeleton"></div></div>
+        </div>
+    </div>
+
+    <main id="main-content"></main>
+
+    <section class="company-info-section">
+        <div class="info-block">
+            <i class="fas fa-map-marker-alt"></i>
+            <div class="info-block-content">
+                <h4>نشانی شرکت</h4>
+                <p>تهران - میدان آرژانتین - خیابان الوند - بن بست آفرین - پلاک ۸ - طبقه ۴</p>
+                <p>کد پستی: <span class="pn">۱۵۱۴۹۴۶۳۳۷</span></p>
+                <a href="https://maps.app.goo.gl/wQndC3UNGHTJwPoJA" target="_blank" style="color:var(--primary); font-weight:bold;">[ مشاهده روی نقشه ]</a>
+            </div>
+        </div>
+        <div class="info-block">
+            <i class="fas fa-phone-volume"></i>
+            <div class="info-block-content">
+                <h4>ارتباط با شرکت</h4>
+                <p>
+                  تلفن:
+                  <a href="tel:+982158179000" class="pn">۵۸۱۷۹۰۰۰-۰۲۱</a>
+                </p>
+                <p>
+                  تلفن صدای مشتری:
+                  <a href="tel:+982188193295" class="pn">۸۸۱۹۳۲۹۵-۰۲۱</a>
+                </p>
+            </div>
+        </div>
+        <div class="info-block">
+            <i class="fas fa-globe"></i>
+            <div class="info-block-content">
+                <h4>پل‌های ارتباطی الکترونیک</h4>
+                    <p>
+                      ایمیل:
+                      <a href="mailto:info@hastitamin.com">info@hastitamin.com</a>
+                    </p>
+                    
+                    <p>
+                      وب‌سایت:
+                      <a href="https://hastitaamin.com" target="_blank" rel="noopener noreferrer">
+                        hastitaamin.com
+                      </a>
+                    </p>
+                    <p>
+                      لینکدین:
+                      <a href="https://www.linkedin.com/company/hasti-aryan-taamin" target="_blank" rel="noopener noreferrer">
+                        Linkedin
+                      </a>
+                    </p>
+
+            </div>
+        </div>
+
+        <div class="info-block">
+            <i class="fas fa-file-alt"></i>
+            <div class="info-block-content">
+                <h4>فایل‌های ضروری</h4>
+
+
+                
+                <p>
+                     فایل معرفی و آنبردینگ:
+                    <a 
+                      href="https://drive.google.com/file/d/1gOiuWvMf54Ks_lroGuqbMWdwIiPdvTiQ/view?usp=sharing"
+                      target="_blank"
+                      rel="noopener noreferrer">
+                      دانلود 
+                    </a>
+                </p>
+                
+                <p>
+                    <a href="sign" style="color: var(--primary); text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-file-signature"></i>
+                        <span>مشاهده امضای ایمیل </span>
+                    </a>
+                </p>
+
+                
+                <div class="qr-wrapper">
+                    <img 
+                      src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://drive.google.com/file/d/1gOiuWvMf54Ks_lroGuqbMWdwIiPdvTiQ/view?usp=sharing"
+                      alt="QR Code – Company Onboarding File">
+                </div>
+
+
+                
+            </div>
+        </div>
+
+        
+    </section>
+
+    <footer>تهیه شده توسط واحد مارکتینگ | ۱۴۰۴ | نسخه 1.2</footer>
+</div>
+
+<script>
+    const CONFIG = {
+        fileName: 'numbers.xlsx',
+        cols: { dept: 'واحد', name: 'نام', family: 'خانوادگی', role: 'سمت', ext: 'داخلی', email: 'ایمیل' }
+    };
+
+    let allData = [];
+    let currentFilter = 'همه';
+
+    const toPersian = (num) => String(num).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+
+    async function init() {
+        try {
+            const resp = await fetch(CONFIG.fileName);
+            const arrayBuffer = await resp.arrayBuffer();
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const raw = XLSX.utils.sheet_to_json(sheet);
+
+            allData = raw.map(item => ({
+                firstName: item[CONFIG.cols.name] || '',
+                lastName: item[CONFIG.cols.family] || '', // Stored for sorting
+                fullName: `${item[CONFIG.cols.name] || ''} ${item[CONFIG.cols.family] || ''}`.trim(),
+                dept: item[CONFIG.cols.dept] || 'سایر',
+                role: item[CONFIG.cols.role] || 'کارمند',
+                ext: String(item[CONFIG.cols.ext] || ''),
+                email: item[CONFIG.cols.email] || '-',
+                isManager: (item[CONFIG.cols.role] || '').includes('مدیر')
+            }));
+
+            renderUI();
+            document.getElementById('loading-placeholder').style.display = 'none';
+            document.getElementById('controls').style.display = 'block';
+            document.querySelectorAll('.pn').forEach(el => el.innerText = toPersian(el.innerText));
+
+        } catch (err) {
+            document.getElementById('main-content').innerHTML = `<div class="empty-state"><p>خطا در بارگذاری فایل Excel.</p></div>`;
+        }
+    }
+
+    function renderUI() {
+        const searchVal = document.getElementById('search-input').value.toLowerCase();
+        const main = document.getElementById('main-content');
+        main.innerHTML = '';
+
+        const depts = ['همه', ...new Set(allData.map(d => d.dept))];
+        document.getElementById('filter-pills').innerHTML = depts.map(d => `
+            <button class="filter-btn ${currentFilter === d ? 'active' : ''}" onclick="setFilter('${d}')">${d}</button>
+        `).join('');
+
+        let filtered = allData.filter(p => {
+            const matchSearch = p.fullName.toLowerCase().includes(searchVal) || p.ext.includes(searchVal) || p.dept.includes(searchVal);
+            const matchDept = currentFilter === 'همه' || p.dept === currentFilter;
+            return matchSearch && matchDept;
+        });
+
+        const groups = filtered.reduce((acc, obj) => {
+            acc[obj.dept] = acc[obj.dept] || [];
+            acc[obj.dept].push(obj);
+            return acc;
+        }, {});
+
+        Object.keys(groups).forEach(dept => {
+            // Updated Sorting Logic: Managers first, then Alphabetical by Last Name
+            groups[dept].sort((a, b) => {
+                if (a.isManager && !b.isManager) return -1;
+                if (!a.isManager && b.isManager) return 1;
+                return a.lastName.localeCompare(b.lastName, 'fa');
+            });
+            
+            const section = document.createElement('div');
+            section.className = 'dept-section';
+            section.innerHTML = `
+                <div class="dept-title"><h2>${dept}</h2><div class="dept-line"></div></div>
+                <div class="grid">
+                    ${groups[dept].map(p => `
+                        <div class="card">
+                            ${p.isManager ? '<span class="badge-manager">مدیر</span>' : ''}
+                            <div class="card-top">
+                                <div class="avatar" style="background:${stringToColor(p.fullName)}">${p.fullName.charAt(0)}</div>
+                                <div class="user-info">
+                                    <h3>${p.fullName}</h3>
+                                    <p>${p.role}</p>
+                                </div>
+                            </div>
+                            <div class="contact-row">
+                                <a href="tel:${p.ext}" class="contact-link"><i class="fas fa-phone-alt" style="color:var(--success)"></i><span>${toPersian(p.ext)}</span></a>
+                                <i class="far fa-copy copy-trigger" onclick="copyText('${p.ext}')"></i>
+                            </div>
+                            ${p.email !== '-' ? `
+                            <div class="contact-row">
+                                <a href="mailto:${p.email}" class="contact-link"><i class="fas fa-envelope" style="color:var(--primary)"></i><span style="font-size:0.75rem">${p.email}</span></a>
+                                <i class="far fa-copy copy-trigger" onclick="copyText('${p.email}')"></i>
+                            </div>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            main.appendChild(section);
+        });
+    }
+
+    function setFilter(d) { currentFilter = d; renderUI(); }
+    function copyText(txt) { navigator.clipboard.writeText(txt); alert('کپی شد: ' + toPersian(txt)); }
+    function stringToColor(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        return `hsl(${hash % 360}, 60%, 45%)`;
+    }
+
+    document.getElementById('search-input').addEventListener('input', renderUI);
+    window.onload = init;
+</script>
+    
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/numbers/service-worker.js");
+    });
+  }
+</script>
+
+    
+</body>
+</html>
