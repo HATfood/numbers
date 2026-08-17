@@ -630,20 +630,23 @@
         }
 
         .app-shell {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) 252px;
+            display: flex;
+            direction: ltr;
+            flex-direction: row;
             gap: 1.15rem;
             align-items: start;
         }
 
         .sidebar {
-            grid-column: 2;
+            order: 2;
+            flex: 0 0 380px;
+            direction: rtl;
             position: sticky;
             top: 1rem;
             z-index: 110;
-            max-height: calc(100vh - 2rem);
+            max-height: none;
             padding: .75rem;
-            overflow: hidden;
+            overflow: visible;
             border: 1px solid rgba(30,63,40,.12);
             border-radius: 22px;
             background: rgba(255,255,255,.82);
@@ -653,8 +656,9 @@
         }
 
         .content-column {
-            grid-column: 1;
-            grid-row: 1;
+            order: 1;
+            flex: 1 1 auto;
+            direction: rtl;
             min-width: 0;
         }
 
@@ -682,7 +686,7 @@
         }
 
         .sidebar .header h1 {
-            max-width: 200px;
+            max-width: 300px;
             font-size: .94rem;
             line-height: 1.65;
         }
@@ -704,7 +708,7 @@
             min-height: 44px;
             padding: .65rem 2.55rem .65rem .65rem;
             border-radius: 12px;
-            font-size: .82rem;
+            font-size: .8rem;
             text-align: right;
         }
 
@@ -723,26 +727,27 @@
         .filter-label i { color: var(--primary); }
 
         .sidebar .filter-container {
-            max-height: calc(100vh - 228px);
-            flex-direction: column;
-            flex-wrap: nowrap;
-            align-items: stretch;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            max-height: none;
             gap: .3rem;
-            padding: 0 0 0 .2rem;
-            overflow-x: hidden;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(30,63,40,.25) transparent;
+            padding: 0;
+            overflow: visible;
         }
 
         .sidebar .filter-btn {
             width: 100%;
-            min-height: 35px;
-            padding: .38rem .7rem;
+            min-width: 0;
+            min-height: 32px;
+            padding: .3rem .55rem;
             text-align: right;
             border-radius: 10px;
-            font-size: .76rem;
+            font-size: .72rem;
+            line-height: 1.35;
+            white-space: normal;
         }
+
+        .sidebar .filter-btn:first-child { grid-column: 1 / -1; }
 
         .sidebar .filter-btn:hover { transform: translateX(-2px); }
 
@@ -781,7 +786,7 @@
             .sidebar { background: rgba(25,33,27,.88); }
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 760px) {
             .container { padding: .75rem; }
             .app-shell { display: block; }
             .sidebar {
@@ -830,13 +835,14 @@
             .filter-label { display: none; }
             .sidebar .search-wrapper { margin-bottom: .5rem; }
             .sidebar .filter-container {
+                display: flex;
                 max-height: none;
                 flex-direction: row;
+                flex-wrap: wrap;
                 align-items: center;
                 gap: .35rem;
                 padding: 0 0 .15rem;
-                overflow-x: auto;
-                overflow-y: hidden;
+                overflow: visible;
             }
 
             .sidebar .filter-btn {
@@ -845,6 +851,8 @@
                 padding: .35rem .75rem;
                 white-space: nowrap;
             }
+
+            .sidebar .filter-btn:first-child { grid-column: auto; }
 
             .sidebar .filter-btn:hover { transform: translateY(-1px); }
         }
