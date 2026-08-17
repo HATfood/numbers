@@ -634,18 +634,21 @@
             direction: ltr;
             flex-direction: row;
             gap: 1.15rem;
-            align-items: start;
+            align-items: stretch;
         }
 
         .sidebar {
             order: 2;
-            flex: 0 0 380px;
+            flex: 0 0 330px;
             direction: rtl;
             position: sticky;
             top: 1rem;
             z-index: 110;
+            box-sizing: border-box;
+            height: calc(100vh - 2rem);
+            height: calc(100dvh - 2rem);
             max-height: none;
-            padding: .75rem;
+            padding: .65rem;
             overflow: visible;
             border: 1px solid rgba(30,63,40,.12);
             border-radius: 22px;
@@ -666,9 +669,9 @@
             min-height: 0;
             flex-direction: column;
             justify-content: center;
-            gap: .65rem;
-            margin: 0 0 .65rem;
-            padding: .75rem .6rem .85rem;
+            gap: .45rem;
+            margin: 0 0 .5rem;
+            padding: .55rem .5rem .65rem;
             text-align: center;
             border: 0;
             border-bottom: 1px solid var(--border-color);
@@ -679,16 +682,16 @@
         }
 
         .sidebar .header-logo {
-            width: 52px;
-            height: 52px;
+            width: 48px;
+            height: 48px;
             padding: 5px;
-            border-radius: 15px;
+            border-radius: 14px;
         }
 
         .sidebar .header h1 {
-            max-width: 300px;
-            font-size: .94rem;
-            line-height: 1.65;
+            max-width: 280px;
+            font-size: .9rem;
+            line-height: 1.5;
         }
 
         .sidebar .sticky-controls {
@@ -702,13 +705,13 @@
             backdrop-filter: none;
         }
 
-        .sidebar .search-wrapper { margin-bottom: .7rem; }
+        .sidebar .search-wrapper { margin-bottom: .5rem; }
 
         .sidebar #search-input {
-            min-height: 44px;
-            padding: .65rem 2.55rem .65rem .65rem;
+            min-height: 42px;
+            padding: .58rem 2.4rem .58rem .55rem;
             border-radius: 12px;
-            font-size: .8rem;
+            font-size: .77rem;
             text-align: right;
         }
 
@@ -717,8 +720,8 @@
         .filter-label {
             display: flex;
             align-items: center;
-            gap: .45rem;
-            margin: 0 .15rem .45rem;
+            gap: .35rem;
+            margin: 0 .1rem .25rem;
             color: var(--text-muted);
             font-size: .72rem;
             font-weight: 700;
@@ -730,7 +733,7 @@
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             max-height: none;
-            gap: .3rem;
+            gap: .22rem;
             padding: 0;
             overflow: visible;
         }
@@ -738,12 +741,12 @@
         .sidebar .filter-btn {
             width: 100%;
             min-width: 0;
-            min-height: 32px;
-            padding: .3rem .55rem;
+            min-height: 28px;
+            padding: .18rem .42rem;
             text-align: right;
-            border-radius: 10px;
-            font-size: .72rem;
-            line-height: 1.35;
+            border-radius: 9px;
+            font-size: .69rem;
+            line-height: 1.2;
             white-space: normal;
         }
 
@@ -791,6 +794,7 @@
             .app-shell { display: block; }
             .sidebar {
                 position: static;
+                height: auto;
                 max-height: none;
                 padding: 0;
                 overflow: visible;
@@ -988,7 +992,7 @@
         
     </section>
 
-    <footer>تهیه شده توسط واحد مارکتینگ | ۱۴۰۵ | نسخه 2.0</footer>
+    <footer>تهیه شده توسط واحد مارکتینگ | ۱۴۰۴ | نسخه 1.2</footer>
     </div>
   </div>
 </div>
